@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Core\Container\Container;
+use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Http\Router;
@@ -30,19 +32,28 @@ $request = new Request(
     files: $_FILES,
 );
 
-$router = new Router();
+class Test1 {}
 
+class Service
+{
 
-$router->get('/', fn(Request $request) => "Flipa is running from '/'.");
+    public string $name = 'Servicio';
+    public function __construct(Test1 $test1) {}
+}
+
+class Test2
+{
+    public function __construct(public Test1 $test1, public string $nameTest, public Service $service) {}
+}
+
+$app = new Container();
 
 try {
-    $result = $router->dispatch($request);
-    $response = new Response(body: $result);
-    $response->send();
-} catch (\Core\Http\Exceptions\HttpException $e) {
-    $response = new Response(
-        body: "{$e->getMessage()} Code: {$e->getStatusCode()}",
-        code: $e->getStatusCode()
-    );
-    $response->send();
+    $app->bind('string', fn() => "Probando desde index.php");
+    $test = $app->make(Test2::class);
+    $response = new Response();
+    $response->withCookie('culo', 'coki', 900)->withHeader('Content-Type', 'html/text')->withStatus(500)->send();
+    //print_r($test->test1);
+} catch (\Exception $e) {
+    echo $e->getMessage();
 }
