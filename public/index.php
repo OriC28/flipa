@@ -12,9 +12,14 @@ $request = $app->make(RequestInterface::class);
 $router = $app->make(Router::class);
 
 try {
-    $result = $router->dispatch($request);
+    $response = (new \Core\Http\Pipeline($app))
+        ->send($request)
+        ->through([new \App\Middlewares\AuthMiddleware()])
+        ->then(function ($request) use ($router) {
+            $result = $router->dispatch($request);
+            return new Response(body: $result);
+        });
 
-    $response = new Response(body: $result);
     $response->send();
 } catch (\Core\Http\Exceptions\HttpException $th) {
     $response = new Response(
