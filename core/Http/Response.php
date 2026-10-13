@@ -22,6 +22,15 @@ class Response implements ResponseInterface
         return $new;
     }
 
+    public function withHeaders(array $headers): Response
+    {
+        $new = clone $this;
+        foreach ($headers as $name => $value) {
+            $new->headers[ucwords($name, '-')] = $value;
+        }
+        return $new;
+    }
+
     public function withStatus(int $code): Response
     {
         $new = clone $this;
