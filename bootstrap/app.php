@@ -12,7 +12,7 @@ $dotenv = Dotenv::createImmutable(__DIR__ . "/..");
 $dotenv->safeLoad();
 $dotenv->required("APP_ENV");
 
-if ($_ENV["APP_ENV"] === "development") {
+if (env('APP_ENV') === "development") {
     $whoops = new \Whoops\Run();
     $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
     $whoops->register();
