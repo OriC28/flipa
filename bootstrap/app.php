@@ -1,6 +1,8 @@
 <?php
 
+use Core\Config\Config;
 use Core\Container\Container;
+use Core\Database\Database;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Router;
@@ -36,6 +38,8 @@ $app->bind(
 );
 
 $app->singleton(Router::class, fn() => new Router($app));
+$app->singleton(Config::class, fn() => new Config(__DIR__ . '/../config'));
+$app->singleton(Database::class, fn() => new Database($app->make(Config::class)));
 
 $router = $app->make(Router::class);
 

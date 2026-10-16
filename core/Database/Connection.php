@@ -2,6 +2,8 @@
 
 namespace Core\Database;
 
+use Core\Database\Query\Builder;
+
 class Connection
 {
     private ?\PDO $connection = null;
@@ -18,11 +20,11 @@ class Connection
     {
         $this->url = $config["url"] ?? null;
         $this->driver = $config["driver"];
-        $this->host = $config['host'];
-        $this->port = $config["port"];
+        $this->host = $config["host"] ?? '127.0.0.1';
+        $this->port = $config["port"] ?? '3306';
         $this->database = $config["database"];
-        $this->username = $config["username"];
-        $this->password = $config["password"];
+        $this->username = $config["username"] ?? 'root';
+        $this->password = $config["password"] ?? '';
         $this->options = $config["options"] ?? $this->getDefaultOptions();
     }
     private function getDefaultOptions(): array
@@ -59,5 +61,10 @@ class Connection
             return $this->connection;
         }
         return $this->connection;
+    }
+
+    public function table(string $table)
+    {
+        return (new Builder($this))->table($table);
     }
 }

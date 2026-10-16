@@ -1,5 +1,7 @@
 <?php
 
+namespace Core\Config;
+
 class Config
 {
     private array $items = [];

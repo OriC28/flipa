@@ -1,5 +1,8 @@
 <?php
 
+namespace Core\Database;
+
+use Core\Config\Config;
 use Core\Database\Connection;
 
 class Database
