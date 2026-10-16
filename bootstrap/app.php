@@ -6,6 +6,8 @@ use Core\Database\Database;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Router;
+use Core\Session\Session;
+use Core\View\View;
 use Dotenv\Dotenv;
 
 require __DIR__ . "/../vendor/autoload.php";
@@ -39,11 +41,15 @@ $app->bind(
 
 $app->singleton(Router::class, fn() => new Router($app));
 $app->singleton(Config::class, fn() => new Config(__DIR__ . '/../config'));
+$app->singleton(Session::class, fn() => new Session());
 $app->singleton(Database::class, fn() => new Database($app->make(Config::class)));
+$app->singleton(View::class, fn() => new View('/resources/views'));
 
 $router = $app->make(Router::class);
 
 $loadRoutes = require __DIR__ . '/../routes/web.php';
 $loadRoutes($router);
+
+$GLOBALS['app'] = $app;
 
 return $app;
