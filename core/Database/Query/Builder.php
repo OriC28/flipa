@@ -3,6 +3,8 @@
 namespace Core\Database\Query;
 
 use Core\Database\Connection;
+use Core\Database\Exceptions\DatabaseException;
+use Core\Database\Exceptions\QueryException;
 
 class Builder
 {
@@ -12,6 +14,19 @@ class Builder
     private array $conditions = [];
     private array $bindings = [];
     public function __construct(private Connection $connection) {}
+
+
+    protected function run(string $sql, array $bindings): \PDOStatement
+    {
+        try {
+            $conn = $this->connection->getPdo();
+            $stmt = $conn->prepare($sql);
+            $stmt->execute($bindings);
+            return $stmt;
+        } catch (\PDOException $e) {
+            throw new QueryException($e->getMessage(), $sql, $bindings);
+        }
+    }
 
     public function table(string $table): self
     {
@@ -66,10 +81,9 @@ class Builder
 
         $sql .= $this->orders ? " ORDER BY " . implode(', ', $this->orders) : '';
 
-        $conn = $this->connection->getPdo();
-        $stmt = $conn->prepare($sql);
+        $stmt = $this->run($sql, $this->bindings);
 
-        return $stmt->execute($this->bindings) ? $stmt->fetchAll() : [];
+        return $stmt->fetchAll();
     }
     private function buildInsertQuery(array $data): string
     {
@@ -85,10 +99,9 @@ class Builder
 
         $sql = $this->buildInsertQuery($data);
 
-        $conn = $this->connection->getPdo();
-        $stmt = $conn->prepare($sql);
+        $stmt = $this->run($sql, $values);
 
-        return $stmt->execute($values) ? $stmt->rowCount() : 0;
+        return $stmt->rowCount();
     }
     public function insertGetId(array $data): ?int
     {
@@ -96,16 +109,15 @@ class Builder
 
         $sql = $this->buildInsertQuery($data);
 
-        $conn = $this->connection->getPdo();
-        $stmt = $conn->prepare($sql);
+        $this->run($sql, $values);
 
-        return $stmt->execute($values) ? (int) $conn->lastInsertId() : null;
+        return (int) $this->connection->getPdo()->lastInsertId();
     }
 
     public function update(array $data): int
     {
         if (empty($this->conditions)) {
-            throw new \Exception("Cannot update without conditions.");
+            throw new DatabaseException("Cannot update without conditions.");
         }
 
         $setClauses = [];
@@ -122,24 +134,22 @@ class Builder
 
         $sql = "UPDATE {$this->table} SET {$columns} WHERE {$conditions}";
 
-        $conn = $this->connection->getPdo();
-        $stmt = $conn->prepare($sql);
+        $stmt = $this->run($sql, $values);
 
-        return $stmt->execute($values) ? $stmt->rowCount() : 0;
+        return $stmt->rowCount();
     }
 
     public function delete(): int
     {
         if (empty($this->conditions)) {
-            throw new \Exception("Cannot delete without conditions.");
+            throw new DatabaseException("Cannot delete without conditions.");
         }
         $conditions = implode(' AND ', $this->conditions);
 
         $sql = "DELETE FROM {$this->table} WHERE {$conditions}";
 
-        $conn = $this->connection->getPdo();
-        $stmt = $conn->prepare($sql);
+        $stmt = $this->run($sql, $this->bindings);
 
-        return $stmt->execute($this->bindings) ? $stmt->rowCount() : 0;
+        return $stmt->rowCount();
     }
 }
