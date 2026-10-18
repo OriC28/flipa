@@ -1,5 +1,7 @@
 <?php
 
+use Core\Log\Logger;
+use Core\Log\LogLevel;
 use Core\Session\Session;
 use Core\View\View;
 
@@ -26,6 +28,19 @@ function session(?string $key = null, mixed $value = null)
         return $session;
     }
     return func_num_args() === 1 ? $session->get($key) : $session->put($key, $value);
+}
+
+function logger(?string $message = null, array $context = [], LogLevel|string $level = LogLevel::INFO): Logger
+{
+    $logger = app(Logger::class);
+
+    if ($message === null) {
+        return $logger;
+    }
+
+    $logger->log($level, $message, $context);
+
+    return $logger;
 }
 
 function env(string $key, $default = null): mixed

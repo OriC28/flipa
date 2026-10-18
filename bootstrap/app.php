@@ -6,6 +6,7 @@ use Core\Database\Database;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Router;
+use Core\Log\Logger;
 use Core\Session\Session;
 use Core\View\View;
 use Dotenv\Dotenv;
@@ -43,6 +44,7 @@ $app->singleton(Router::class, fn() => new Router($app));
 $app->singleton(Config::class, fn() => new Config(__DIR__ . '/../config'));
 $app->singleton(Session::class, fn() => new Session());
 $app->singleton(Database::class, fn() => new Database($app->make(Config::class)));
+$app->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../storage/logs'));
 $app->singleton(View::class, fn() => new View('/resources/views'));
 
 $router = $app->make(Router::class);
