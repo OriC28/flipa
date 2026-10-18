@@ -3,6 +3,7 @@
 use Core\Config\Config;
 use Core\Container\Container;
 use Core\Database\Database;
+use Core\Exceptions\Handler;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Router;
@@ -41,11 +42,21 @@ $app->bind(
 );
 
 $app->singleton(Router::class, fn() => new Router($app));
+$app->singleton(Handler::class, fn() => new Handler());
 $app->singleton(Config::class, fn() => new Config(__DIR__ . '/../config'));
 $app->singleton(Session::class, fn() => new Session());
 $app->singleton(Database::class, fn() => new Database($app->make(Config::class)));
 $app->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../storage/logs'));
-$app->singleton(View::class, fn() => new View('/resources/views'));
+$app->singleton(View::class, fn() => new View([
+    __DIR__ . '/../resources/views',
+    __DIR__ . '/../core/Exceptions/views'
+]));
+
+set_exception_handler(function (\Throwable $exception) use ($app) {
+    $handler = $app->make(Handler::class);
+    $response = $handler->render($app->make(RequestInterface::class), $exception);
+    $response->send();
+});
 
 $router = $app->make(Router::class);
 

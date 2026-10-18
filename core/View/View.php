@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\View;
 
 use Core\View\Exceptions\ViewNotFoundException;
 
 class View
 {
-    public function __construct(protected string $pathBase)
+    public function __construct(protected array|string $pathBase) {}
+
+    public function getValidPath(string $path): string
     {
-        $this->pathBase = str_starts_with($pathBase, '/') ? $pathBase : "/$pathBase";
+        return str_starts_with($path, '/') ? $path : "/$path";
     }
 
     private function transformPathView(string $view): string
@@ -31,7 +35,18 @@ class View
     public function render(string $view, array $data = []): string
     {
         $view = $this->transformPathView($view);
-        $resource = __DIR__ . "/../..{$this->pathBase}/$view";
+
+        if (\is_array($this->pathBase)) {
+            foreach ($this->pathBase as $path) {
+                $path = $this->getValidPath($path);
+                $resource = "$path/$view";
+                if (\file_exists($resource)) {
+                    return $this->importContentView($resource, $data);
+                }
+            }
+            throw new ViewNotFoundException("No view was found in $view.");
+        }
+        $resource = $this->getValidPath($this->pathBase);
         return $this->importContentView($resource, $data);
     }
 }
