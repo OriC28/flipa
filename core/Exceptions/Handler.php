@@ -6,6 +6,7 @@ namespace Core\Exceptions;
 
 use Core\Http\Exceptions\HttpException;
 use Core\Http\Exceptions\MethodNotAllowedException;
+use Core\Http\Exceptions\ValidationException;
 use Core\Http\Request;
 use Core\Http\Response;
 
@@ -28,10 +29,14 @@ class Handler
             logger()->error($message);
 
             if (str_contains($request->header('Accept'), 'application/json')) {
-                $jsonBody = json_encode(['error' => $e->getMessage(), 'code' => $statusCode]);
+                $jsonBody = $e instanceof ValidationException
+                    ? json_encode(['errors' => $e->errors])
+                    : json_encode(['error' => $e->getMessage(), 'code' => $statusCode]);
                 return $response->withStatus($statusCode)->withBody($jsonBody);
             }
-            $htmlBody = view("errors.$statusCode", ['message' => $e->getMessage()]);
+            $htmlBody = $e instanceof ValidationException
+                ? view("errors.$statusCode", ['errors' => $e->errors])
+                : view("errors.$statusCode", ['message' => $e->getMessage()]);
             return $response->withStatus($statusCode)->withBody($htmlBody);
         } catch (\Throwable $th) {
             return (new Response(

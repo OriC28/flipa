@@ -13,4 +13,6 @@ return function (Router $router): void {
     );
 
     $router->get('/dashboard', [DashboardController::class, 'index']);
+
+    $router->post('/dashboard', [DashboardController::class, 'store']);
 };
