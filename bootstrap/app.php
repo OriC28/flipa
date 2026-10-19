@@ -1,5 +1,6 @@
 <?php
 
+use App\Requests\StoreUserRequest;
 use Core\Config\Config;
 use Core\Container\Container;
 use Core\Database\Database;
@@ -26,19 +27,16 @@ if (env('APP_ENV') === "development") {
 
 $app = new Container();
 
-$app->bind(
+$app->singleton(
+    Request::class,
+    fn() => Request::capture()
+);
+
+$app->singleton(
     RequestInterface::class,
-    fn() => new Request(
-        method: $_SERVER['REQUEST_METHOD'],
-        uri: parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
-        ip: $_SERVER['REMOTE_ADDR'],
-        host: $_SERVER['HTTP_HOST'],
-        post: $_POST,
-        query: $_GET,
-        cookies: $_COOKIE,
-        headers: $_SERVER,
-        files: $_FILES,
-    )
+    function () use ($app) {
+        return $app->make(Request::class);
+    }
 );
 
 $app->singleton(Router::class, fn() => new Router($app));

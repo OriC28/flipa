@@ -9,17 +9,31 @@ use Core\Http\Contracts\RequestInterface;
 class Request implements RequestInterface
 {
     public function __construct(
-        private readonly string $method,
-        private readonly string $uri,
-        private readonly string $ip,
-        private readonly string $host,
-        private readonly array $post,
-        private readonly array $query,
-        private readonly array $cookies,
-        private readonly array $headers,
-        private readonly array $files,
+        protected readonly string $method,
+        protected readonly string $uri,
+        protected readonly string $ip,
+        protected readonly string $host,
+        protected readonly array $post,
+        protected readonly array $query,
+        protected readonly array $cookies,
+        protected readonly array $headers,
+        protected readonly array $files,
     ) {}
-
+    public static function capture(): self
+    {
+        $server = $_SERVER ?? [];
+        return new self(
+            method: $server['REQUEST_METHOD'] ?? 'GET',
+            uri: parse_url($server['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/',
+            ip: $server['REMOTE_ADDR'] ?? '127.0.0.1',
+            host: $server['HTTP_HOST'] ?? 'localhost',
+            post: $_POST,
+            query: $_GET,
+            cookies: $_COOKIE,
+            headers: $server,
+            files: $_FILES,
+        );
+    }
     public function getMethod(): string
     {
         return $this->method;
@@ -63,7 +77,7 @@ class Request implements RequestInterface
 
     public function all(): array
     {
-        return [...$this->query, ...$this->post];
+        return [...$this->query, ...$this->post, ...$this->json()];
     }
 
     public function file(string $file_name, ?string $default = null): ?string
@@ -79,5 +93,19 @@ class Request implements RequestInterface
     public function host(): string
     {
         return $this->host;
+    }
+
+    public function isJson(): bool
+    {
+        return str_contains($this->header('Content-Type') ?? '', 'application/json');
+    }
+
+    public function json(): array
+    {
+        if ($this->isJson()) {
+            $rawData = file_get_contents('php://input');
+            return json_decode($rawData, true) ?? [];
+        }
+        return [];
     }
 }

@@ -110,4 +110,23 @@ class Container
             array_pop($this->buildStack);
         }
     }
+
+    public function call(\Closure|array $callback, array $parameters = []): mixed
+    {
+        $reflection =  \is_array($callback)
+            ? new \ReflectionMethod($callback[0], $callback[1])
+            : $reflection = new \ReflectionFunction($callback);
+
+        $resolvedDependencies = [];
+
+        foreach ($reflection->getParameters() as $parameter) {
+            $name = $parameter->getName();
+
+            $resolvedDependencies[] = \array_key_exists($name, $parameters)
+                ? $parameters[$name]
+                : $this->resolveParameter($parameter);
+        }
+
+        return $callback(...$resolvedDependencies);
+    }
 }

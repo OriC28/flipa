@@ -60,9 +60,9 @@ class Router
                     if (\is_array($route->getAction())) {
                         [$controllerClass, $method] = $route->getAction();
                         $controller = $this->app->make($controllerClass);
-                        return [$controller, $method]($request, ...$params);
+                        return $this->app->call([$controller, $method], $params);
                     }
-                    return $route->getAction()($request, ...$params);
+                    return $this->app->call($route->getAction(), $params);
                 }
             }
         }
