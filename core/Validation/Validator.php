@@ -16,25 +16,15 @@ class Validator
             foreach ($rulesArray as $rule) {
                 $parameters = explode(':', $rule);
                 $ruleName = $parameters[0];
-                $param = $parameters[1] ?? null;
+                $params = \array_slice($parameters, 1);
 
-                if (!isset($this->data[$field])) {
-                    $this->errors[$field][] = "The $field field is required.";
-                    continue 2;
+                $factory = RuleFactory::make($ruleName, $params);
+
+                if (!$factory->passes($field, $this->data[$field] ?? null)) {
+                    $this->errors[$field][] = $factory->message();
                 }
 
-                if (!isset($this->data[$field])) {
-                    continue 2;
-                }
-
-                $result =  match ($ruleName) {
-                    'min' => mb_strlen($this->data[$field]) >= $param,
-                    'max' => mb_strlen($this->data[$field]) <= $param,
-                    default => true
-                };
-
-                if ($result === false) {
-                    $this->errors[$field][] = "The $field must have a $ruleName of $param characters.";
+                if (!isset($this->data[$field]) || $this->data[$field] === '') {
                     continue 2;
                 }
             }
