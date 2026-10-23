@@ -13,6 +13,8 @@ class Model implements JsonSerializable
     protected array $attributes = [];
     protected Connection $connection;
     protected string $primaryKey = 'id';
+    protected array $fillables = [];
+    protected array $hidden = [];
 
     public function __construct()
     {
@@ -23,12 +25,12 @@ class Model implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return $this->attributes;
+        return $this->getVisibleAttributes();
     }
 
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
-        return $this->attributes;
+        return $this->getVisibleAttributes();
     }
 
     public function __get(string $name): mixed
@@ -44,6 +46,17 @@ class Model implements JsonSerializable
         $this->attributes[$name] = $value;
     }
 
+    private function getVisibleAttributes(): array
+    {
+        $attributesFiltered = [];
+        foreach ($this->attributes as $key => $value) {
+            if (!\in_array($key, $this->hidden)) {
+                $attributesFiltered[$key] = $value;
+            }
+        }
+        return $attributesFiltered;
+    }
+
     private function tableNameAutoDiscovery(): string
     {
         $basenameClass = class_basename($this);
@@ -54,6 +67,15 @@ class Model implements JsonSerializable
     private function newQuery(): Builder
     {
         return (new Builder($this->connection))->table($this->table);
+    }
+    private function fill(array $data): static
+    {
+        foreach ($data as $key => $value) {
+            if (\in_array($key, $this->fillables)) {
+                $this->attributes[$key] = $value;
+            }
+        }
+        return $this;
     }
 
     private function hydrate(array|object $row): static
@@ -93,6 +115,14 @@ class Model implements JsonSerializable
         }
         $newId = $this->newQuery()->insertGetId($this->attributes);
         $this->attributes[$this->primaryKey] = $newId;
+    }
+
+    public static function create(array $data): static
+    {
+        $model = new static();
+        $model->fill($data);
+        $model->save();
+        return $model;
     }
 
     public function delete(): void

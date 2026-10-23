@@ -4,4 +4,7 @@ namespace App\Models;
 
 use Core\Database\Model;
 
-class User extends Model {}
+class User extends Model
+{
+    protected array $fillables = ['name', 'email'];
+}
