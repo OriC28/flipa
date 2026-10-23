@@ -1,9 +1,13 @@
 <?php
 
+use App\Listeners\LogUserCreation;
 use App\Requests\StoreUserRequest;
 use Core\Config\Config;
 use Core\Container\Container;
 use Core\Database\Database;
+use Core\Events\Dispatcher;
+use Core\Events\EventStates\Created;
+use Core\Events\EventStates\Creating;
 use Core\Exceptions\Handler;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
@@ -45,6 +49,7 @@ $app->singleton(Config::class, fn() => new Config(__DIR__ . '/../config'));
 $app->singleton(Session::class, fn() => new Session());
 $app->singleton(Database::class, fn() => new Database($app->make(Config::class)));
 $app->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../storage/logs'));
+$app->singleton(Dispatcher::class, fn() => new Dispatcher());
 $app->singleton(View::class, fn() => new View([
     __DIR__ . '/../resources/views',
     __DIR__ . '/../core/Exceptions/views'

@@ -5,7 +5,14 @@ declare(strict_types=1);
 namespace Core\Database;
 
 use Core\Database\Query\Builder;
+use Core\Events\Dispatcher;
 use JsonSerializable;
+use Core\Events\EventStates\Created;
+use Core\Events\EventStates\Creating;
+use Core\Events\EventStates\Updating;
+use Core\Events\EventStates\Updated;
+use Core\Events\EventStates\Deleted;
+use Core\Events\EventStates\Deleting;
 
 class Model implements JsonSerializable
 {
@@ -15,12 +22,14 @@ class Model implements JsonSerializable
     protected string $primaryKey = 'id';
     protected array $fillables = [];
     protected array $hidden = [];
+    private Dispatcher $dispatcher;
 
     public function __construct()
     {
         $db = app(Database::class);
         $this->connection = $db->connection();
         $this->table = $this->tableNameAutoDiscovery();
+        $this->dispatcher = app(Dispatcher::class);;
     }
 
     public function jsonSerialize(): array
@@ -109,12 +118,20 @@ class Model implements JsonSerializable
     public function save(): void
     {
         if (isset($this->attributes[$this->primaryKey])) {
+            if (!$this->dispatcher->dispatch(new Updating($this))) return;
+
             $id = $this->attributes[$this->primaryKey];
             $this->newQuery()->where($this->primaryKey, $id)->update($this->attributes);
+
+            $this->dispatcher->dispatch(new Updated($this));
             return;
         }
+        if (!$this->dispatcher->dispatch(new Creating($this))) return;
+
         $newId = $this->newQuery()->insertGetId($this->attributes);
         $this->attributes[$this->primaryKey] = $newId;
+
+        $this->dispatcher->dispatch(new Created($this));
     }
 
     public static function create(array $data): static
@@ -128,10 +145,14 @@ class Model implements JsonSerializable
     public function delete(): void
     {
         if (isset($this->attributes[$this->primaryKey])) {
+            if (!$this->dispatcher->dispatch(new Deleting($this))) return;
+
             $id = $this->attributes[$this->primaryKey];
             $this->newQuery()->where($this->primaryKey, $id)->delete();
 
             $this->attributes[$this->primaryKey] = null;
+
+            $this->dispatcher->dispatch(new Deleted($this));
         }
     }
 }
