@@ -52,3 +52,10 @@ function e(string $var, bool $doubleEncode = true): string
 {
     return htmlspecialchars(string: $var, double_encode: $doubleEncode);
 }
+
+function class_basename(string|object $class): string
+{
+    $class = is_object($class) ? get_class($class) : $class;
+
+    return basename(str_replace('\\', '/', $class));
+}
