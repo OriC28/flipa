@@ -15,14 +15,14 @@ class Response implements ResponseInterface
         protected array $cookies = [],
     ) {}
 
-    public function withHeader(string $name, string $value): Response
+    public function withHeader(string $name, string $value): static
     {
         $new = clone $this;
         $new->headers[ucwords($name, '-')] = $value;
         return $new;
     }
 
-    public function withHeaders(array $headers): Response
+    public function withHeaders(array $headers): static
     {
         $new = clone $this;
         foreach ($headers as $name => $value) {
@@ -31,53 +31,55 @@ class Response implements ResponseInterface
         return $new;
     }
 
-    public function withStatus(int $code): Response
+    public function withStatus(int $code): static
     {
         $new = clone $this;
         $new->code = $code;
         return $new;
     }
 
-    public function withBody(string|array $body): Response
+    public function withBody(string|array $body): static
     {
         $new = clone $this;
         $new->body = \is_array($body) ? json_encode($body, JSON_PRETTY_PRINT) : $body;
         return $new;
     }
 
-    public function withCookie(string $name, string $value, int $expires = 0): Response
+    public function withCookie(string $name, string $value, int $expires = 0): static
     {
         $new  = clone $this;
         $new->cookies[$name] = ['value' => $value, 'expires' => $expires];
         return $new;
     }
 
-    public function asJson(): void
+    public function asJson(): static
     {
-        if ($this->cookies) {
-            foreach ($this->cookies as $name => $value) {
-                setcookie($name, $value['value'], $value['expires']);
-            }
+        $new = clone $this;
+
+        if (!isset($new->headers['Content-Type'])) {
+            return $new->withHeader('Content-Type', 'application/json');
         }
-        http_response_code($this->code);
-        if (!isset($this->headers["Content-Type"])) {
-            $this->headers["Content-Type"] = "application/json";
-        }
-        header("Content-Type: " . $this->headers["Content-Type"]);
-        echo $this->body;
+        return $new;
     }
 
     public function send(): void
     {
+        $this->sendCookies();
+
+        http_response_code($this->code);
+
+        foreach ($this->headers as $name => $value) {
+            header("$name: $value");
+        }
+        echo $this->body;
+    }
+
+    public function sendCookies(): void
+    {
         if ($this->cookies) {
             foreach ($this->cookies as $name => $value) {
                 setcookie($name, $value['value'], $value['expires']);
             }
         }
-        http_response_code($this->code);
-        foreach ($this->headers as $name => $value) {
-            header("$name: $value");
-        }
-        echo $this->body;
     }
 }
