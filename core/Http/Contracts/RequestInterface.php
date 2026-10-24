@@ -17,4 +17,6 @@ interface RequestInterface
     public function file(string $file_name, ?string $default = null): ?string;
     public function ip(): string;
     public function host(): string;
+    public function json(): array;
+    public function isJson(): bool;
 }

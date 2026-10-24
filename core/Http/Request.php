@@ -8,6 +8,7 @@ use Core\Http\Contracts\RequestInterface;
 
 class Request implements RequestInterface
 {
+    private ?array $jsonCache = null;
     public function __construct(
         protected readonly string $method,
         protected readonly string $uri,
@@ -103,8 +104,12 @@ class Request implements RequestInterface
     public function json(): array
     {
         if ($this->isJson()) {
-            $rawData = file_get_contents('php://input');
-            return json_decode($rawData, true) ?? [];
+            // In-memory cache to process the `php://input` stream only once.
+            if ($this->jsonCache === null) {
+                $rawData = file_get_contents('php://input');
+                $this->jsonCache = json_decode($rawData, true) ?? [];
+            }
+            return $this->jsonCache;
         }
         return [];
     }
