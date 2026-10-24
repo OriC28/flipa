@@ -6,12 +6,14 @@ namespace Core\Container;
 
 use Core\Container\Exceptions\BindingResolutionException;
 use Core\Container\Exceptions\CircularDependencyException;
+use Core\Container\Exceptions\ContainerInstanceException;
 
 class Container
 {
     private array $bindings = [];
     private array $instances = [];
     private array $buildStack = [];
+    private static ?self $instance = null;
 
     public function bind(string $abstract, \Closure|string $concrete)
     {
@@ -128,5 +130,21 @@ class Container
         }
 
         return $callback(...$resolvedDependencies);
+    }
+
+    public static function setInstance(self $instance): void
+    {
+        if (self::$instance) {
+            throw new ContainerInstanceException('An instance of the container already exists. Overwriting the instance is not permitted.');
+        }
+        self::$instance = $instance;
+    }
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            throw new ContainerInstanceException('You cannot obtain the container instance before initializing app.php.');
+        }
+        return self::$instance;
     }
 }

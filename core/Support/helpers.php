@@ -1,5 +1,6 @@
 <?php
 
+use Core\Container\Container;
 use Core\Log\Logger;
 use Core\Log\LogLevel;
 use Core\Session\Session;
@@ -7,7 +8,7 @@ use Core\View\View;
 
 function app($abstract = null): mixed
 {
-    $app = $GLOBALS["app"];
+    $app = Container::getInstance();
     if ($abstract === null) {
         return $app;
     }

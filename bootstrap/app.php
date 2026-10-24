@@ -1,13 +1,9 @@
 <?php
 
-use App\Listeners\LogUserCreation;
-use App\Requests\StoreUserRequest;
 use Core\Config\Config;
 use Core\Container\Container;
 use Core\Database\Database;
 use Core\Events\Dispatcher;
-use Core\Events\EventStates\Created;
-use Core\Events\EventStates\Creating;
 use Core\Exceptions\Handler;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
@@ -66,6 +62,6 @@ $router = $app->make(Router::class);
 $loadRoutes = require __DIR__ . '/../routes/web.php';
 $loadRoutes($router);
 
-$GLOBALS['app'] = $app;
+Container::setInstance($app);
 
 return $app;
