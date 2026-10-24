@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Database;
 
+use Core\Database\Exceptions\ConnectionException;
 use Core\Database\Query\Builder;
 
 class Connection
@@ -41,19 +44,18 @@ class Connection
         if ($this->url !== null) {
             return $this->url;
         }
-
-        $this->url = match ($this->driver) {
+        $dsn = match ($this->driver) {
             'mysql' => "mysql:host=$this->host;port=$this->port;dbname=$this->database",
             'sqlite' =>  str_starts_with($this->database, '/')
                 ? "sqlite:$this->database"
                 : "sqlite:/$this->database",
-            default => ''
+            default => throw new ConnectionException("The driver {$this->driver} is not supported. Try configuring SQLite or MySQL in config/database.php")
         };
 
-        return $this->url;
+        return $dsn;
     }
 
-    public function getPdo()
+    public function getPdo(): \PDO
     {
         $dsn = $this->buildDsn();
         if ($this->connection === null) {
@@ -63,7 +65,7 @@ class Connection
         return $this->connection;
     }
 
-    public function table(string $table)
+    public function table(string $table): Builder
     {
         return (new Builder($this))->table($table);
     }

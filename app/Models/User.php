@@ -6,5 +6,5 @@ use Core\Database\Model;
 
 class User extends Model
 {
-    protected array $fillables = ['name', 'email'];
+    protected array $fillable = ['name', 'email'];
 }

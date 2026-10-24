@@ -18,18 +18,15 @@ class Model implements JsonSerializable
 {
     protected string $table = "";
     protected array $attributes = [];
-    protected Connection $connection;
+    protected ?Connection $connection = null;
     protected string $primaryKey = 'id';
-    protected array $fillables = [];
+    protected array $fillable = [];
     protected array $hidden = [];
-    private Dispatcher $dispatcher;
+    private ?Dispatcher $dispatcher = null;
 
     public function __construct()
     {
-        $db = app(Database::class);
-        $this->connection = $db->connection();
         $this->table = $this->tableNameAutoDiscovery();
-        $this->dispatcher = app(Dispatcher::class);;
     }
 
     public function jsonSerialize(): array
@@ -75,16 +72,33 @@ class Model implements JsonSerializable
 
     private function newQuery(): Builder
     {
-        return (new Builder($this->connection))->table($this->table);
+        return (new Builder($this->getConnection()))->table($this->table);
     }
     private function fill(array $data): static
     {
         foreach ($data as $key => $value) {
-            if (\in_array($key, $this->fillables)) {
+            if (\in_array($key, $this->fillable)) {
                 $this->attributes[$key] = $value;
             }
         }
         return $this;
+    }
+
+    private function getConnection(): Connection
+    {
+        if ($this->connection === null) {
+            $db = app(Database::class);
+            $this->connection = $db->connection();
+        }
+        return $this->connection;
+    }
+
+    private function getDispatcher(): Dispatcher
+    {
+        if ($this->dispatcher === null) {
+            $this->dispatcher = app(Dispatcher::class);
+        }
+        return $this->dispatcher;
     }
 
     private function hydrate(array|object $row): static
@@ -118,20 +132,21 @@ class Model implements JsonSerializable
     public function save(): void
     {
         if (isset($this->attributes[$this->primaryKey])) {
-            if (!$this->dispatcher->dispatch(new Updating($this))) return;
+            if (!$this->getDispatcher()->dispatch(new Updating($this))) return;
 
             $id = $this->attributes[$this->primaryKey];
-            $this->newQuery()->where($this->primaryKey, $id)->update($this->attributes);
+            $attributesWithoutPrimaryKey = array_diff_key($this->attributes, [$this->primaryKey => true]);
+            $this->newQuery()->where($this->primaryKey, $id)->update($attributesWithoutPrimaryKey);
 
-            $this->dispatcher->dispatch(new Updated($this));
+            $this->getDispatcher()->dispatch(new Updated($this));
             return;
         }
-        if (!$this->dispatcher->dispatch(new Creating($this))) return;
+        if (!$this->getDispatcher()->dispatch(new Creating($this))) return;
 
         $newId = $this->newQuery()->insertGetId($this->attributes);
         $this->attributes[$this->primaryKey] = $newId;
 
-        $this->dispatcher->dispatch(new Created($this));
+        $this->getDispatcher()->dispatch(new Created($this));
     }
 
     public static function create(array $data): static
@@ -145,14 +160,14 @@ class Model implements JsonSerializable
     public function delete(): void
     {
         if (isset($this->attributes[$this->primaryKey])) {
-            if (!$this->dispatcher->dispatch(new Deleting($this))) return;
+            if (!$this->getDispatcher()->dispatch(new Deleting($this))) return;
 
             $id = $this->attributes[$this->primaryKey];
             $this->newQuery()->where($this->primaryKey, $id)->delete();
 
             $this->attributes[$this->primaryKey] = null;
 
-            $this->dispatcher->dispatch(new Deleted($this));
+            $this->getDispatcher()->dispatch(new Deleted($this));
         }
     }
 }
