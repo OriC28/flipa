@@ -2,7 +2,7 @@
 
 namespace Core\Http;
 
-use Core\Container\Container;
+use Core\Container\Contracts\ContainerInterface;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Contracts\ResponseInterface;
 
@@ -11,7 +11,7 @@ class Pipeline
     private array $middlewares = [];
     private RequestInterface $request;
 
-    public function __construct(private Container $app) {}
+    public function __construct(private ContainerInterface $app) {}
 
     public function send(RequestInterface $request): self
     {

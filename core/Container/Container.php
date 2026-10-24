@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Core\Container;
 
+use Core\Container\Contracts\ContainerInterface;
 use Core\Container\Exceptions\BindingResolutionException;
 use Core\Container\Exceptions\CircularDependencyException;
 use Core\Container\Exceptions\ContainerInstanceException;
 
-class Container
+class Container implements ContainerInterface
 {
     private array $bindings = [];
     private array $instances = [];
     private array $buildStack = [];
     private static ?self $instance = null;
 
-    public function bind(string $abstract, \Closure|string $concrete)
+    public function bind(string $abstract, \Closure|string $concrete): void
     {
         $concrete instanceof \Closure ?
             $this->bindings[$abstract] = $concrete
@@ -23,7 +24,7 @@ class Container
             $this->bindings[$abstract] = fn() => new $concrete();
     }
 
-    public function singleton(string $abstract, \Closure|string $concrete)
+    public function singleton(string $abstract, \Closure|string $concrete): void
     {
         $this->bindings[$abstract] = function () use ($abstract, $concrete) {
             if (!isset($this->instances[$abstract])) {
@@ -35,7 +36,7 @@ class Container
         };
     }
 
-    private function resolveNamedType(\ReflectionNamedType $namedType, \ReflectionParameter $parameter)
+    private function resolveNamedType(\ReflectionNamedType $namedType, \ReflectionParameter $parameter): mixed
     {
         $name = $namedType->getName();
 
@@ -52,7 +53,7 @@ class Container
         return $this->make($name);
     }
 
-    private function resolveParameter(\ReflectionParameter $parameter)
+    private function resolveParameter(\ReflectionParameter $parameter): mixed
     {
         $type = $parameter->getType();
 
@@ -79,7 +80,7 @@ class Container
         throw new BindingResolutionException("Parameter without type or default value.");
     }
 
-    public function make(string $abstract)
+    public function make(string $abstract): mixed
     {
         if (isset($this->bindings[$abstract])) {
             return $this->bindings[$abstract]();
@@ -113,11 +114,16 @@ class Container
         }
     }
 
+    public function has(string $abstract): bool
+    {
+        return isset($this->bindings[$abstract]) || isset($this->instances[$abstract]);
+    }
+
     public function call(\Closure|array $callback, array $parameters = []): mixed
     {
         $reflection =  \is_array($callback)
             ? new \ReflectionMethod($callback[0], $callback[1])
-            : $reflection = new \ReflectionFunction($callback);
+            : new \ReflectionFunction($callback);
 
         $resolvedDependencies = [];
 
@@ -132,7 +138,7 @@ class Container
         return $callback(...$resolvedDependencies);
     }
 
-    public static function setInstance(self $instance): void
+    public static function setInstance(ContainerInterface $instance): void
     {
         if (self::$instance) {
             throw new ContainerInstanceException('An instance of the container already exists. Overwriting the instance is not permitted.');
@@ -140,7 +146,7 @@ class Container
         self::$instance = $instance;
     }
 
-    public static function getInstance(): self
+    public static function getInstance(): static
     {
         if (self::$instance === null) {
             throw new ContainerInstanceException('You cannot obtain the container instance before initializing app.php.');

@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Core\Http;
 
-use Core\Container\Container;
-use Core\Http\Contracts\RequestInterface;
+use Core\Container\Contracts\ContainerInterface;
+
 use Core\Http\Exceptions\MethodNotAllowedException;
 use Core\Http\Exceptions\NotFoundException;
+use Core\Http\Contracts\RequestInterface;
 
 class Router
 {
     private array $routes = [];
 
-    public function __construct(private Container $app) {}
+    public function __construct(private ContainerInterface $app) {}
 
     private function addRoute(string $method, string $path, \Closure|array $action): Route
     {
