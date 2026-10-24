@@ -6,15 +6,21 @@ namespace Core\Http;
 
 class Route
 {
-    public string $regexCompiled;
-    private array $parameterNames = [];
+    private readonly string $regexCompiled;
+    private readonly array $parameterNames;
+    private readonly \Closure|array $action;
+    private readonly string $path;
+    private readonly string $method;
 
     public function __construct(
-        public string $path,
-        public string $method,
-        public \Closure|array $action,
+        string $path,
+        string $method,
+        \Closure|array $action
     ) {
         $this->method = strtoupper($method);
+        $this->path = $path;
+        $this->action = $action;
+
         $this->regexCompiled = $this->convertToRegex($this->path);
         $this->parameterNames = $this->getParametersName($this->path);
     }
@@ -34,6 +40,16 @@ class Route
     public function getAction(): \Closure|array
     {
         return $this->action;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
     }
 
     public function match(string $uri): ?array

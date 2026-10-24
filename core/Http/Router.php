@@ -77,8 +77,8 @@ class Router
 
             foreach ($routes as $route) {
                 if ($route->match($currentUri) !== null) {
-                    if (!\in_array($route->method, $allowedMethods)) {
-                        $allowedMethods[] = $route->method;
+                    if (!\in_array($route->getMethod(), $allowedMethods)) {
+                        $allowedMethods[] = $route->getMethod();
                     }
                 }
             }
