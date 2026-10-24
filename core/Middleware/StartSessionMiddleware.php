@@ -2,23 +2,19 @@
 
 namespace Core\Middleware;
 
-use Core\Container\Contracts\ContainerInterface;
 use Core\Http\Contracts\MiddlewareInterface;
 use Core\Http\Contracts\ResponseInterface;
 use Core\Http\Contracts\RequestInterface;
 
-use Core\Session\Session;
-
 class StartSessionMiddleware implements MiddlewareInterface
 {
-    public function __construct(private ContainerInterface $app) {}
+    public function __construct() {}
 
     public function handle(RequestInterface $request, \Closure $next): ResponseInterface
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $this->app->singleton(Session::class, fn() => new Session());
         return $next($request);
     }
 }

@@ -3,8 +3,10 @@
 namespace Core\Http;
 
 use Core\Container\Contracts\ContainerInterface;
+use Core\Http\Contracts\MiddlewareInterface;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Contracts\ResponseInterface;
+use Core\Http\Exceptions\MiddlewareException;
 
 class Pipeline
 {
@@ -21,6 +23,11 @@ class Pipeline
 
     public function through(array $middlewares): self
     {
+        foreach ($middlewares as $middleware) {
+            if (!is_subclass_of($middleware, MiddlewareInterface::class)) {
+                throw new MiddlewareException("Middleware $middleware does not implement interface MiddlewareInterface", 422);
+            }
+        }
         $this->middlewares = $middlewares;
         return $this;
     }
