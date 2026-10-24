@@ -9,6 +9,8 @@ use Core\Http\Contracts\RequestInterface;
 use Core\Http\Request;
 use Core\Http\Router;
 use Core\Log\Logger;
+use Core\Middleware\CorsMiddleware;
+use Core\Middleware\StartSessionMiddleware;
 use Core\Session\Session;
 use Core\View\View;
 use Dotenv\Dotenv;
@@ -50,6 +52,9 @@ $app->singleton(View::class, fn() => new View([
     __DIR__ . '/../resources/views',
     __DIR__ . '/../core/Exceptions/views'
 ]));
+
+$app->bind(CorsMiddleware::class, fn() => new CorsMiddleware());
+$app->bind(StartSessionMiddleware::class, fn() => new StartSessionMiddleware($app));
 
 set_exception_handler(function (\Throwable $exception) use ($app) {
     $handler = $app->make(Handler::class);
