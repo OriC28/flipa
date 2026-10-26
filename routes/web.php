@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Controllers\DashboardController;
 use Core\Http\Request;
 use Core\Http\Router;
