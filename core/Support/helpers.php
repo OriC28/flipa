@@ -20,7 +20,7 @@ function view(string $name, array $data = []): string
     return app(View::class)->render($name, $data);
 }
 
-function session(?string $key = null, mixed $value = null)
+function session(?string $key = null, mixed $value = null): mixed
 {
     $session =  app(Session::class);
     $paramsCount  = func_num_args();
@@ -28,7 +28,7 @@ function session(?string $key = null, mixed $value = null)
     if ($paramsCount === 0) {
         return $session;
     }
-    return func_num_args() === 1 ? $session->get($key) : $session->put($key, $value);
+    return $paramsCount === 1 ? $session->get($key) : $session->put($key, $value);
 }
 
 function logger(?string $message = null, array $context = [], LogLevel|string $level = LogLevel::INFO): Logger

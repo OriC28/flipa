@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Core\Exceptions;
 
+use Core\Http\Contracts\RequestInterface;
 use Core\Http\Exceptions\HttpException;
 use Core\Http\Exceptions\MethodNotAllowedException;
 use Core\Http\Exceptions\ValidationException;
-use Core\Http\Request;
 use Core\Http\Response;
 
 class Handler
 {
-    public function render(Request $request, \Throwable $e): Response
+    public function render(RequestInterface $request, \Throwable $e): Response
     {
         $message = $e->getMessage() . "|" . $e->getFile() . ":" . $e->getLine();
         $statusCode = $e instanceof HttpException ? $e->getStatusCode() : $this->getCalculateStatusCode($e);
@@ -46,7 +46,7 @@ class Handler
         }
     }
 
-    private function getCalculateStatusCode(\Throwable $e)
+    private function getCalculateStatusCode(\Throwable $e): int
     {
         return ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
     }
