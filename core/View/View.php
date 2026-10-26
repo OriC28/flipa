@@ -10,7 +10,7 @@ class View
 {
     public function __construct(protected array|string $pathBase) {}
 
-    public function getValidPath(string $path): string
+    private function getValidPath(string $path): string
     {
         return str_starts_with($path, '/') ? $path : "/$path";
     }
@@ -28,7 +28,7 @@ class View
         extract($data);
         ob_start();
         require $resource;
-        $content = ob_get_clean();
+        $content = ob_get_clean() ?: '';
         return $content;
     }
 
