@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Session;
 
 class Session
@@ -24,7 +26,7 @@ class Session
         return $_SESSION;
     }
 
-    public function destroy()
+    public function destroy(): void
     {
         $_SESSION = [];
         session_destroy();
@@ -46,7 +48,7 @@ class Session
         return $flash_content;
     }
 
-    public function forget(string $key)
+    public function forget(string $key): void
     {
         unset($_SESSION[$key]);
     }
