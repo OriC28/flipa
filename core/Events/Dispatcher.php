@@ -2,20 +2,24 @@
 
 namespace Core\Events;
 
+use Core\Container\Contracts\ContainerInterface;
 use Core\Events\Contracts\DispatcherInterface;
+use Core\Events\Contracts\EventInterface;
 use Core\Events\Contracts\ListenerInterface;
 
 class Dispatcher implements DispatcherInterface
 {
     protected array $listeners = [];
 
-    public function dispatch(object $event): bool
+    public function __construct(protected ContainerInterface $app) {}
+
+    public function dispatch(EventInterface $event): bool
     {
         $eventClass = $event::class;
 
         if (isset($this->listeners[$eventClass])) {
             foreach ($this->listeners[$eventClass] as $listener) {
-                $listen = app($listener);
+                $listen = $this->app->make($listener);
                 if ($listen->handle($event) === false) {
                     return false;
                 }

@@ -2,14 +2,6 @@
 
 namespace Core\Events;
 
-use Core\Database\Model;
+use Core\Events\Contracts\EventInterface;
 
-class Event
-{
-    public function __construct(protected Model $model) {}
-
-    public function getModel(): Model
-    {
-        return $this->model;
-    }
-}
+class Event implements EventInterface {}

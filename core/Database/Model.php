@@ -7,12 +7,12 @@ namespace Core\Database;
 use Core\Database\Query\Builder;
 use Core\Events\Dispatcher;
 use JsonSerializable;
-use Core\Events\EventStates\Created;
-use Core\Events\EventStates\Creating;
-use Core\Events\EventStates\Updating;
-use Core\Events\EventStates\Updated;
-use Core\Events\EventStates\Deleted;
-use Core\Events\EventStates\Deleting;
+use Core\Events\ModelEvents\Created;
+use Core\Events\ModelEvents\Creating;
+use Core\Events\ModelEvents\Updating;
+use Core\Events\ModelEvents\Updated;
+use Core\Events\ModelEvents\Deleted;
+use Core\Events\ModelEvents\Deleting;
 
 class Model implements JsonSerializable
 {

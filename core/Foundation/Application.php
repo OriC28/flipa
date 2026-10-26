@@ -30,7 +30,7 @@ class Application extends Container
     public function registerCoreBindings(): self
     {
         $this->bind(CorsMiddleware::class, fn() => new CorsMiddleware());
-        $this->bind(StartSessionMiddleware::class, fn() => new StartSessionMiddleware($this));
+        $this->bind(StartSessionMiddleware::class, fn() => new StartSessionMiddleware());
 
         $this->singleton(Router::class, fn() => new Router($this));
         $this->singleton(Request::class, fn() => Request::capture());
@@ -40,7 +40,7 @@ class Application extends Container
         $this->singleton(Session::class, fn() => new Session());
         $this->singleton(Database::class, fn() => new Database($this->make(Config::class)));
         $this->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../../storage/logs'));
-        $this->singleton(Dispatcher::class, fn() => new Dispatcher());
+        $this->singleton(Dispatcher::class, fn() => new Dispatcher($this));
         $this->singleton(View::class, fn() => new View([
             __DIR__ . '/../../resources/views',
             __DIR__ . '/../../core/Exceptions/views'
