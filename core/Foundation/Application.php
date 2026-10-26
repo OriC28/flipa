@@ -39,7 +39,7 @@ class Application extends Container
         $this->singleton(Config::class, fn() => new Config(__DIR__ . '/../../config'));
         $this->singleton(Session::class, fn() => new Session());
         $this->singleton(Database::class, fn() => new Database($this->make(Config::class)));
-        $this->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../../storage/logs'));
+        $this->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../../storage/logs', 'flipa.log'));
         $this->singleton(Dispatcher::class, fn() => new Dispatcher($this));
         $this->singleton(View::class, fn() => new View([
             __DIR__ . '/../../resources/views',

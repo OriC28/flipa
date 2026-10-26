@@ -8,7 +8,7 @@ use Core\Log\Contracts\LoggerInterface;
 
 class Logger implements LoggerInterface
 {
-    public function __construct(protected string $logPath) {}
+    public function __construct(protected string $logPath, protected string $logFile) {}
     public function emergency(string|\Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::EMERGENCY, $message, $context);
@@ -65,9 +65,12 @@ class Logger implements LoggerInterface
         $date = date('Y-m-d H:i:s');
         $env = env('APP_ENV', 'development');
         $levelString = $level instanceof LogLevel ? strtoupper($level->value) : strtoupper((string) $level);
-        $extra = json_encode($context, JSON_UNESCAPED_UNICODE);
 
-        return "[$date] $env.$levelString: $message $extra" . PHP_EOL;
+        if (!empty($context)) {
+            $extra = json_encode($context, JSON_UNESCAPED_UNICODE);
+            return "[$date] $env.$levelString: $message $extra" . PHP_EOL;
+        }
+        return "[$date] $env.$levelString: $message" . PHP_EOL;
     }
 
     private function ensureDirectoryExists(): void
@@ -79,7 +82,7 @@ class Logger implements LoggerInterface
 
     private function writeToFile(string $line): void
     {
-        $filename = rtrim($this->logPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'flipa.log';
+        $filename = rtrim($this->logPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->logFile;
         file_put_contents($filename, $line, FILE_APPEND | LOCK_EX);
     }
 
