@@ -8,7 +8,7 @@ use Core\Validation\Contracts\RuleInterface;
 
 class Required implements RuleInterface
 {
-    public string $error = '';
+    private string $error = '';
     public function passes(string $attribute, mixed $value): bool
     {
         if (!isset($value) || $value === '') {

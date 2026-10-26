@@ -9,7 +9,7 @@ class Validator
     private array $errors = [];
     public function __construct(protected array $data, protected array $rules) {}
 
-    public function fails(): mixed
+    public function fails(): bool
     {
         foreach ($this->rules as $field => $ruleString) {
             $rulesArray = explode('|', $ruleString);

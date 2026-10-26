@@ -11,7 +11,7 @@ use Core\Validation\Contracts\RuleInterface;
 class Max implements RuleInterface
 {
     use Optional;
-    public string $error = '';
+    private string $error = '';
     public function __construct(public int $limit = 18) {}
     public function passes(string $attribute, mixed $value): bool
     {

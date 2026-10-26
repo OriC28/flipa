@@ -4,7 +4,7 @@ namespace Core\Validation\Contracts;
 
 interface RuleInterface
 {
-    public function passes(string $attribute, mixed $value);
+    public function passes(string $attribute, mixed $value): bool;
 
-    public function message();
+    public function message(): string;
 }

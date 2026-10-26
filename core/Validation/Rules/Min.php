@@ -10,7 +10,7 @@ use Core\Validation\Contracts\RuleInterface;
 class Min implements RuleInterface
 {
     use Optional;
-    public string $error = '';
+    private string $error = '';
     public function __construct(public int $limit = 8) {}
     public function passes(string $attribute, mixed $value): bool
     {

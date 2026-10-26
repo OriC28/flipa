@@ -10,7 +10,7 @@ use Core\Validation\Contracts\RuleInterface;
 class Email implements RuleInterface
 {
     use Optional;
-    public string $error = '';
+    private string $error = '';
     public function passes(string $attribute, mixed $value): bool
     {
         if ($this->isOptional($value)) return true;

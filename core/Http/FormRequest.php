@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Core\Http;
 
+use Core\Http\Exceptions\HttpException;
 use Core\Http\Exceptions\ValidationException;
 use Core\Validation\Validator;
 
@@ -35,6 +36,9 @@ class FormRequest extends Request
 
     public function validate(): void
     {
+        if (!$this->authorize()) {
+            throw new HttpException("HTTP Error 403 (Unauthorized),", 403);
+        }
         $validator = new Validator($this->all(), $this->rules());
         if ($validator->fails()) {
             throw new ValidationException($validator->errors());
