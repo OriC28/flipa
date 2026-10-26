@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Database\Query;
 
 use Core\Database\Connection;
@@ -36,21 +38,29 @@ class Builder
 
     public function select(array $columns): self
     {
-        $this->columns = $columns;
-        return $this;
+        $temp = clone $this;
+        $temp->columns = $columns;
+        return $temp;
     }
 
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
-        $this->orders[] = "$column $direction";
-        return $this;
+        $temp = clone $this;
+        $temp->orders[] = "$column $direction";
+        return $temp;
     }
 
-    public function where(string $column, mixed $value): self
+    public function where(string $column, ?string $operator = null, mixed $value = null): self
     {
-        $this->conditions[] = "$column = ?";
-        $this->bindings[] = $value;
-        return $this;
+        if ($value === null && \func_num_args() == 2) {
+            $value = $operator;
+            $operator = '=';
+        }
+        $temp = clone $this;
+
+        $temp->conditions[] = "$column $operator ?";
+        $temp->bindings[] = $value;
+        return $temp;
     }
 
     public function first(): ?array
@@ -58,12 +68,12 @@ class Builder
         return $this->get()[0] ?? null;
     }
 
-    public function find(mixed $id): ?array
+    public function find(mixed $id, string $column = 'id'): ?array
     {
-        return $this->where('id', $id)->first();
+        return $this->where($column, $id)->first();
     }
 
-    public function count()
+    public function count(): int
     {
         $temp = clone $this;
         $temp->columns = ['COUNT(*) as aggregate'];

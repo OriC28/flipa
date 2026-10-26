@@ -125,7 +125,7 @@ class Model implements JsonSerializable
     public static function find(mixed $id): static|null
     {
         $model = new static();
-        $row = $model->newQuery()->find($id);
+        $row = $model->newQuery()->where($model->primaryKey, $id)->first();
         if ($row === null) return null;
         return $model->hydrate($row);
     }
