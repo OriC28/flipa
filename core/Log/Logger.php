@@ -8,7 +8,11 @@ use Core\Log\Contracts\LoggerInterface;
 
 class Logger implements LoggerInterface
 {
-    public function __construct(protected string $logPath, protected string $logFile) {}
+    public function __construct(
+        protected string $logPath,
+        protected string $logFile
+    ) {}
+
     public function emergency(string|\Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::EMERGENCY, $message, $context);
@@ -54,7 +58,7 @@ class Logger implements LoggerInterface
         $replace = [];
         foreach ($context as $key => $val) {
             if (!\is_array($val) && (!\is_object($val) || method_exists($val, '__toString'))) {
-                $replace["{{$key}}"] = $val;
+                $replace["{{$key}}"] = (string) $val;
             }
         }
         return strtr($message, $replace);
@@ -66,11 +70,14 @@ class Logger implements LoggerInterface
         $env = env('APP_ENV', 'development');
         $levelString = $level instanceof LogLevel ? strtoupper($level->value) : strtoupper((string) $level);
 
+        $cleanMessage = str_replace(["\r\n", "\r", "\n"], ' ', $message);
+
         if (!empty($context)) {
-            $extra = json_encode($context, JSON_UNESCAPED_UNICODE);
-            return "[$date] $env.$levelString: $message $extra" . PHP_EOL;
+            $extra = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            return "[$date] $env.$levelString: $cleanMessage $extra" . PHP_EOL;
         }
-        return "[$date] $env.$levelString: $message" . PHP_EOL;
+
+        return "[$date] $env.$levelString: $cleanMessage" . PHP_EOL;
     }
 
     private function ensureDirectoryExists(): void
@@ -88,9 +95,11 @@ class Logger implements LoggerInterface
 
     public function log(LogLevel|string $level, string|\Stringable $message, array $context = []): void
     {
-        $interpolatedMessage =  $this->interpolate($message, $context);
-        $formatedMessage = $this->formatLine($level, $interpolatedMessage, $context);
+        $messageString = (string) $message;
+        $interpolatedMessage = $this->interpolate($messageString, $context);
+        $formattedMessage = $this->formatLine($level, $interpolatedMessage, $context);
+
         $this->ensureDirectoryExists();
-        $this->writeToFile($formatedMessage);
+        $this->writeToFile($formattedMessage);
     }
 }
