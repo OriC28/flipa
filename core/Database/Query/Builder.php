@@ -50,7 +50,7 @@ class Builder
         return $temp;
     }
 
-    public function where(string $column, ?string $operator = null, mixed $value = null): self
+    public function where(string $column, mixed $operator = null, mixed $value = null): self
     {
         if ($value === null && \func_num_args() == 2) {
             $value = $operator;

@@ -12,24 +12,26 @@ class Connection
     private ?\PDO $connection = null;
     private ?string $url;
     private string $driver;
-    private string $host;
-    private string $port;
+    private ?string $host;
+    private ?string $port;
     private string $database;
-    private string $username;
-    private string $password;
+    private ?string $username;
+    private ?string $password;
     private ?array $options;
 
     public function __construct(private array $config)
     {
         $this->url = $config["url"] ?? null;
         $this->driver = $config["driver"];
-        $this->host = $config["host"] ?? '127.0.0.1';
-        $this->port = $config["port"] ?? '3306';
         $this->database = $config["database"];
-        $this->username = $config["username"] ?? 'root';
-        $this->password = $config["password"] ?? '';
+
+        $this->host = $this->driver === 'sqlite' ? null : $config["host"] ?? null;
+        $this->port = $this->driver === 'sqlite' ? null : $config["port"] ?? null;
+        $this->username = $this->driver === 'sqlite' ? null : $config["username"] ?? null;
+        $this->password = $this->driver === 'sqlite' ? null : $config["password"] ?? null;
         $this->options = $config["options"] ?? $this->getDefaultOptions();
     }
+
     private function getDefaultOptions(): array
     {
         return [
@@ -46,9 +48,8 @@ class Connection
         }
         $dsn = match ($this->driver) {
             'mysql' => "mysql:host=$this->host;port=$this->port;dbname=$this->database",
-            'sqlite' =>  str_starts_with($this->database, '/')
-                ? "sqlite:$this->database"
-                : "sqlite:/$this->database",
+            'sqlite' =>  "sqlite:$this->database",
+
             default => throw new ConnectionException("The driver {$this->driver} is not supported. Try configuring SQLite or MySQL in config/database.php")
         };
 

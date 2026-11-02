@@ -8,7 +8,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', __DIR__ . '/../database/database.sqlite'),
+            'database' => env('DB_SQLITE_DATABASE', database_path('database.sqlite')),
         ],
         'mysql' => [
             'driver' => 'mysql',
