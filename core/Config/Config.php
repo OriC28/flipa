@@ -14,7 +14,7 @@ class Config
 
     private function load(string $path): void
     {
-        $configFiles = glob("$path/*.php");
+        $configFiles = glob(rtrim($path, '/\\') . DIRECTORY_SEPARATOR . '*.php');
         foreach ($configFiles as $file) {
             $filename = basename($file, ".php");
             $this->items[$filename] = require $file;

@@ -24,9 +24,44 @@ use Core\View\View;
 
 class Application extends Container
 {
-    public function __construct()
+    protected string $basePath;
+
+    public function __construct(string $basePath)
     {
+        $this->basePath = rtrim($basePath, '/\\');
         $this->singleton(self::class, fn() => $this);
+    }
+
+    public function basePath(string $path = ''): string
+    {
+        return $path === ''
+            ? $this->basePath
+            : join(DIRECTORY_SEPARATOR, [$this->basePath, ltrim($path, '/\\')]);
+    }
+
+    public function configPath(string $path = ''): string
+    {
+        return $this->basePath('config' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+
+    public function storagePath(string $path = ''): string
+    {
+        return $this->basePath('storage' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+
+    public function databasePath(string $path = ''): string
+    {
+        return $this->basePath('database' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+
+    public function resourcePath(string $path = ''): string
+    {
+        return $this->basePath('resources' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
+    }
+
+    public function appPath(string $path = ''): string
+    {
+        return $this->basePath('app' . ($path !== '' ? DIRECTORY_SEPARATOR . $path : ''));
     }
 
     public function registerCoreBindings(): self
@@ -38,14 +73,14 @@ class Application extends Container
         $this->singleton(Request::class, fn() => Request::capture());
         $this->singleton(RequestInterface::class, fn() => $this->make(Request::class));
         $this->singleton(Handler::class, fn() => new Handler());
-        $this->singleton(Config::class, fn() => new Config(__DIR__ . '/../../config'));
+        $this->singleton(Config::class, fn() => new Config($this->configPath()));
         $this->singleton(Session::class, fn() => new Session());
         $this->singleton(Database::class, fn() => new Database($this->make(Config::class)));
-        $this->singleton(Logger::class, fn() => new Logger(__DIR__ . '/../../storage/logs', 'flipa.log'));
+        $this->singleton(Logger::class, fn() => new Logger($this->basePath('storage/logs'), 'flipa.log'));
         $this->singleton(Dispatcher::class, fn() => new Dispatcher($this));
         $this->singleton(View::class, fn() => new View([
-            __DIR__ . '/../../resources/views',
-            __DIR__ . '/../../core/Exceptions/views'
+            $this->resourcePath('views'),
+            $this->basePath('core/Exceptions/views')
         ]));
 
         return $this;
@@ -61,9 +96,9 @@ class Application extends Container
         return $this;
     }
 
-    public function loadRoutes(string $web): self
+    public function loadRoutes(): self
     {
-        $loadRoutes = require $web;
+        $loadRoutes = require $this->basePath('routes/web.php');
         $loadRoutes($this->make(Router::class));
         return $this;
     }

@@ -18,10 +18,10 @@ if (env('APP_ENV') === "development") {
     $whoops->register();
 }
 
-$app = (new Application())
+$app = (new Application(dirname(__DIR__)))
     ->registerCoreBindings()
     ->registerExceptionHandling()
-    ->loadRoutes(web: __DIR__ . '/../routes/web.php');
+    ->loadRoutes();
 
 Container::setInstance($app);
 

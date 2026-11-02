@@ -10,14 +10,14 @@ class View
 {
     public function __construct(protected array|string $pathBase) {}
 
-    private function getValidPath(string $path): string
-    {
-        return str_starts_with($path, '/') ? $path : "/$path";
-    }
-
     private function transformPathView(string $view): string
     {
-        return str_replace('.', '/', $view) . ".php";
+        return str_replace('.', DIRECTORY_SEPARATOR, $view) . ".php";
+    }
+
+    private function buildResource(string $path, string $view): string
+    {
+        return  rtrim($path, '/\\') . DIRECTORY_SEPARATOR . ltrim($view, '/\\');
     }
 
     private function importContentView(string $resource, array $data): string
@@ -38,15 +38,14 @@ class View
 
         if (\is_array($this->pathBase)) {
             foreach ($this->pathBase as $path) {
-                $path = $this->getValidPath($path);
-                $resource = "$path/$view";
+                $resource = $this->buildResource($path, $view);
                 if (\file_exists($resource)) {
                     return $this->importContentView($resource, $data);
                 }
             }
             throw new ViewNotFoundException("No view was found in $view.");
         }
-        $resource = $this->getValidPath($this->pathBase);
+        $resource = $this->buildResource($this->pathBase, $view);
         return $this->importContentView($resource, $data);
     }
 }

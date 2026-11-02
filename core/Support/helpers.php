@@ -62,3 +62,33 @@ function class_basename(string|object $class): string
 
     return basename(str_replace('\\', '/', $class));
 }
+
+function base_path(string $path = ''): string
+{
+    return app()->basePath($path);
+}
+
+function config_path(string $path = ''): string
+{
+    return app()->configPath($path);
+}
+
+function database_path(string $path = ''): string
+{
+    return app()->databasePath($path);
+}
+
+function resource_path(string $path = ''): string
+{
+    return app()->resourcePath($path);
+}
+
+function storage_path(string $path = ''): string
+{
+    return app()->storagePath($path);
+}
+
+function app_path(string $path = ''): string
+{
+    return app()->appPath($path);
+}
