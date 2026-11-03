@@ -45,10 +45,28 @@ class Response implements ResponseInterface
         return $new;
     }
 
-    public function withCookie(string $name, string $value, int $expires = 0): static
-    {
+    public function withCookie(
+        string $name,
+        string $value,
+        int $expires = 0,
+        string $path = '',
+        string $domain = '',
+        bool $secure = false,
+        bool $httponly = false,
+        string $samesite = 'Lax'
+    ): static {
         $new  = clone $this;
-        $new->cookies[$name] = ['value' => $value, 'expires' => $expires];
+        $new->cookies[$name] = [
+            'value' => $value,
+            'options' => [
+                'expires' => $expires,
+                'path' => $path,
+                'domain' => $domain,
+                'secure' => $secure,
+                'httponly' => $httponly,
+                'samesite' => $samesite
+            ]
+        ];
         return $new;
     }
 
@@ -78,7 +96,7 @@ class Response implements ResponseInterface
     {
         if ($this->cookies) {
             foreach ($this->cookies as $name => $value) {
-                setcookie($name, $value['value'], $value['expires']);
+                setcookie($name, $value['value'], $value['options']);
             }
         }
     }

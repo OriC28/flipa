@@ -33,6 +33,22 @@ function session(?string $key = null, mixed $value = null): mixed
     return $paramsCount === 1 ? $session->get($key) : $session->put($key, $value);
 }
 
+function isHttps(): bool
+{
+    return isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+}
+
+function csrf_token(): ?string
+{
+    return session('_csrf_token');
+}
+
+function csrf_field(): string
+{
+    $token = csrf_token();
+    return '<input type="hidden" name="_csrf_token" value="' . $token . '">';
+}
+
 function logger(?string $message = null, array $context = [], LogLevel|string $level = LogLevel::INFO): Logger
 {
     $logger = app(Logger::class);
