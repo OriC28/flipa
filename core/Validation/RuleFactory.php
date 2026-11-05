@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Core\Validation;
 
 use Core\Validation\Contracts\RuleInterface;
+use Core\Validation\Rules\Alpha;
+use Core\Validation\Rules\Boolean;
 use Core\Validation\Rules\Email;
+use Core\Validation\Rules\Integer;
 use Core\Validation\Rules\Max;
 use Core\Validation\Rules\Min;
 use Core\Validation\Rules\Required;
+use Core\Validation\Rules\Url;
 
 class RuleFactory
 {
@@ -17,6 +21,10 @@ class RuleFactory
         'min'      => Min::class,
         'max'      => Max::class,
         'email' => Email::class,
+        'alpha' => Alpha::class,
+        'boolean' => Boolean::class,
+        'integer' => Integer::class,
+        'url' => Url::class
     ];
 
     public static function make(string $ruleName, array $params = []): RuleInterface
