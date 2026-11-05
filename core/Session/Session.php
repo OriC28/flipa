@@ -6,6 +6,10 @@ namespace Core\Session;
 
 class Session
 {
+    public function regenerate(): void
+    {
+        session_regenerate_id(true);
+    }
     public function get(string $key): mixed
     {
         return $_SESSION[$key] ?? null;

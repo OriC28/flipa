@@ -1,5 +1,9 @@
+Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     RewriteBase /
 
@@ -8,3 +12,7 @@
 
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

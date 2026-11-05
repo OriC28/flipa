@@ -15,6 +15,7 @@ class Builder
     private array $orders = [];
     private array $conditions = [];
     private array $bindings = [];
+    private static array $supportedOperators = ['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'IN', 'NOT IN'];
     public function __construct(private Connection $connection) {}
 
 
@@ -30,14 +31,28 @@ class Builder
         }
     }
 
+    private function validateIdentifier(string $name): bool
+    {
+        return preg_match('/^[a-zA-Z0-9_.]+$/', $name);
+    }
+
     public function table(string $table): self
     {
+        if (!$this->validateIdentifier($table)) {
+            throw new DatabaseException("The identifier '$table' is not valid.");
+        }
         $this->table = $table;
         return $this;
     }
 
     public function select(array $columns): self
     {
+        foreach ($columns as $column) {
+            if (!$this->validateIdentifier($column)) {
+                throw new DatabaseException("The identifier '$column' is not valid.");
+            }
+        }
+
         $temp = clone $this;
         $temp->columns = $columns;
         return $temp;
@@ -45,6 +60,14 @@ class Builder
 
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
+        if (!$this->validateIdentifier($column)) {
+            throw new DatabaseException("The identifier '$column' is not valid.");
+        }
+
+        if (!\in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+            throw new DatabaseException("The provided direction is not valid. Try 'asc' or 'desc'.");
+        }
+
         $temp = clone $this;
         $temp->orders[] = "$column $direction";
         return $temp;
@@ -52,10 +75,19 @@ class Builder
 
     public function where(string $column, mixed $operator = null, mixed $value = null): self
     {
+        if (!$this->validateIdentifier($column)) {
+            throw new DatabaseException("The identifier '$column' is not valid.");
+        }
+
         if ($value === null && \func_num_args() == 2) {
             $value = $operator;
             $operator = '=';
         }
+
+        if (!\in_array($operator, self::$supportedOperators)) {
+            throw new DatabaseException("Operator ($operator) is not supported.");
+        }
+
         $temp = clone $this;
 
         $temp->conditions[] = "$column $operator ?";
@@ -97,6 +129,11 @@ class Builder
     }
     private function buildInsertQuery(array $data): string
     {
+        foreach (array_keys($data) as $column) {
+            if (!$this->validateIdentifier($column)) {
+                throw new DatabaseException("The identifier '$column' is not valid.");
+            }
+        }
         $columns = implode(', ', array_keys($data));
         $markers = implode(', ', array_fill(0, \count($data), '?'));
 
@@ -134,6 +171,9 @@ class Builder
         $setBindings = [];
 
         foreach ($data as $key => $value) {
+            if (!$this->validateIdentifier($key)) {
+                throw new DatabaseException("The identifier '$key' is not valid.");
+            }
             $setClauses[] = "$key = ?";
             $setBindings[] = $value;
         }
