@@ -69,7 +69,12 @@ function env(string $key, $default = null): mixed
 
 function e(string $var, bool $doubleEncode = true): string
 {
-    return htmlspecialchars(string: $var, double_encode: $doubleEncode);
+    return htmlspecialchars(
+        string: $var,
+        flags: ENT_QUOTES | ENT_SUBSTITUTE,
+        encoding: 'UTF-8',
+        double_encode: $doubleEncode
+    );
 }
 
 function class_basename(string|object $class): string
