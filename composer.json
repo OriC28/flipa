@@ -7,7 +7,8 @@
         "php": ">=8.3"
     },
     "require-dev": {
-        "filp/whoops": "^2.18"
+        "filp/whoops": "^2.18",
+        "phpunit/phpunit": "^12"
     },
     "autoload": {
         "psr-4": {
@@ -17,6 +18,11 @@
         "files": [
             "core/Support/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Flipa\\Tests\\": "tests/"
+        }
     },
     "authors": [
         {
