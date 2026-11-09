@@ -4,35 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use Core\Container\Container;
 use Core\Database\Query\Builder;
 use Core\Foundation\Application;
 use Core\Log\Logger;
 use Core\Session\Session;
-use PHPUnit\Framework\TestCase;
 use stdClass;
+use Tests\TestBase;
 
-class HelpersTest extends TestCase
+class HelpersTest extends TestBase
 {
-    protected ?Application $app = null;
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        static $isBooted = false;
-
-        if (!$isBooted) {
-            $this->app = require __DIR__ . '/../../bootstrap/app.php';
-            /**
-             * Force the restoration of the original PHPUnit handlers,
-             * in case any library (such as Whoops) attempted to register 
-             * itself regardless.
-             */
-            restore_exception_handler();
-            $isBooted = true;
-        } else {
-            $this->app = app();
-        }
-    }
     public function test_app_returns_container_instance_without_arguments(): void
     {
         $this->assertInstanceOf(Application::class, app());

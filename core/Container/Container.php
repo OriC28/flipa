@@ -153,4 +153,9 @@ class Container implements ContainerInterface
         }
         return self::$instance;
     }
+
+    public static function clearInstance(): void
+    {
+        self::$instance = null;
+    }
 }

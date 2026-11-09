@@ -13,4 +13,5 @@ interface ContainerInterface
     public function call(\Closure|array $callback, array $parameters = []): mixed;
     public static function setInstance(ContainerInterface $instance): void;
     public static function getInstance(): static;
+    public static function clearInstance(): void;
 }

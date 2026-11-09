@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use Core\Container\Container;
-use PHPUnit\Framework\TestCase;
 use Core\Container\Exceptions\BindingResolutionException;
 use Core\Container\Exceptions\CircularDependencyException;
 use Core\Container\Exceptions\ContainerInstanceException;
@@ -18,15 +17,15 @@ use Tests\Fixtures\Container\ClassWithUnresolvablePrimitive;
 use Tests\Fixtures\Container\ConcreteClass;
 use Tests\Fixtures\Container\NonInstantiableInterface;
 use Tests\Fixtures\Container\DependencyClass;
+use Tests\TestBase;
 
-
-class ContainerTest extends TestCase
+class ContainerTest extends TestBase
 {
     protected Container $container;
     protected function setUp(): void
     {
         parent::setUp();
-
+        Container::clearInstance();
         $this->container = new Container();
     }
     public function test_bind_returns_new_instance_each_time(): void
