@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Fixtures\Container;
+
+class ClassWithPrimitiveDefault
+{
+    public function __construct(public string $env = 'development') {}
+}

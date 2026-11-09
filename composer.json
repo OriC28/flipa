@@ -21,7 +21,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Flipa\\Tests\\": "tests/"
+            "Tests\\": "tests/"
         }
     },
     "authors": [
