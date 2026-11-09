@@ -9,6 +9,7 @@ use Core\Http\Contracts\RequestInterface;
 class Request implements RequestInterface
 {
     private ?array $jsonCache = null;
+    private ?string $rawContent = null;
     public function __construct(
         protected readonly string $method,
         protected readonly string $uri,
@@ -76,6 +77,17 @@ class Request implements RequestInterface
         return isset($this->query[$key]) || isset($this->post[$key]);
     }
 
+    /**
+     * Sets the raw content of the request. 
+     * Primarily useful for unit testing.
+     */
+    public function setRawContent(string $content): self
+    {
+        $this->jsonCache = null;
+        $this->rawContent = $content;
+        return $this;
+    }
+
     public function all(): array
     {
         return [...$this->query, ...$this->post, ...$this->json()];
@@ -106,7 +118,7 @@ class Request implements RequestInterface
         if ($this->isJson()) {
             // In-memory cache to process the `php://input` stream only once.
             if ($this->jsonCache === null) {
-                $rawData = file_get_contents('php://input');
+                $rawData = $this->rawContent ?? file_get_contents('php://input');
                 $this->jsonCache = json_decode($rawData, true) ?? [];
             }
             return $this->jsonCache;

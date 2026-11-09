@@ -13,6 +13,7 @@ interface RequestInterface
     public function post(string $param, ?string $default = null): ?string;
     public function header(string $name, ?string $default = null): ?string;
     public function has(string $key): bool;
+    public function setRawContent(string $content): self;
     public function all(): array;
     public function file(string $file_name, ?string $default = null): ?string;
     public function ip(): string;
