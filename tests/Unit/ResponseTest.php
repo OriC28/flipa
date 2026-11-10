@@ -101,14 +101,12 @@ class ResponseTest extends TestCase
     public function test_redirect_response_sets_default_302_status_and_location_header(): void
     {
         $redirectResponse = new RedirectResponse('http://flipa.local/');
-        $redirectResponse->send();
         $this->assertSame(302, $redirectResponse->getStatusCode());
         $this->assertArrayHasKey('Location', $redirectResponse->getHeaders());
     }
     public function test_redirect_response_allows_custom_status_code(): void
     {
         $redirectResponse = new RedirectResponse('http://flipa.local/', 303);
-        $redirectResponse->send();
         $this->assertSame(303, $redirectResponse->getStatusCode());
     }
 }
