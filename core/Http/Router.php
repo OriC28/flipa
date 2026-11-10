@@ -16,6 +16,11 @@ class Router
 
     public function __construct(private ContainerInterface $app) {}
 
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
     private function addRoute(string $method, string $path, \Closure|array $action): Route
     {
         $this->routes[$method] ??= [];
