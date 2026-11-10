@@ -20,6 +20,9 @@ interface ResponseInterface
         bool $httponly = false,
         string $samesite = 'Lax'
     ): static;
+    public function getHeaders(): array;
+    public function getCookies(): array;
+    public function getStatusCode(): int;
     public function asJson(): static;
     public function send(): void;
     public function sendCookies(): void;

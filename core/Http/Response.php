@@ -70,6 +70,20 @@ class Response implements ResponseInterface
         return $new;
     }
 
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+    public function getStatusCode(): int
+    {
+        return $this->code;
+    }
+
     public function asJson(): static
     {
         $new = clone $this;

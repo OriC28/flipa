@@ -15,6 +15,7 @@ class RedirectResponse extends Response
         array $headers = [],
         array $cookies = [],
     ) {
+        $headers = ['Location' => $this->url] + $headers;
         parent::__construct($code, $body, $headers, $cookies);
     }
 
@@ -22,7 +23,7 @@ class RedirectResponse extends Response
     public function send(): void
     {
         http_response_code($this->code);
-        header("Location: $this->url");
+        header("Location: {$this->url}");
         echo $this->body;
     }
 }
