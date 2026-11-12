@@ -33,7 +33,7 @@ class Builder
 
     private function validateIdentifier(string $name): bool
     {
-        return preg_match('/^[a-zA-Z0-9_.]+$/', $name);
+        return (bool) preg_match('/^[a-zA-Z0-9_.]+$/', $name);
     }
 
     public function table(string $table): self
