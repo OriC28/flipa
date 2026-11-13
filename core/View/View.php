@@ -27,9 +27,14 @@ class View
         }
         extract($data);
         ob_start();
-        require $resource;
-        $content = ob_get_clean() ?: '';
-        return $content;
+        try {
+            require $resource;
+            $content = ob_get_clean() ?: '';
+            return $content;
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
     }
 
     public function render(string $view, array $data = []): string
