@@ -25,10 +25,12 @@ use Core\View\View;
 class Application extends Container
 {
     protected string $basePath;
+    protected string $routePath;
 
     public function __construct(string $basePath)
     {
         $this->basePath = rtrim($basePath, '/\\');
+        $this->routePath = 'routes' . DIRECTORY_SEPARATOR . 'web.php';
         $this->singleton(self::class, fn() => $this);
     }
 
@@ -98,7 +100,7 @@ class Application extends Container
 
     public function loadRoutes(): self
     {
-        $loadRoutes = require $this->basePath('routes/web.php');
+        $loadRoutes = require $this->basePath($this->routePath);
         $loadRoutes($this->make(Router::class));
         return $this;
     }
