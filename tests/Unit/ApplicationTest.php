@@ -109,9 +109,6 @@ class ApplicationTest extends TestCase
     }
     public function test_register_exception_handling_sets_global_exception_handler(): void
     {
-        $originalHandler = set_exception_handler(function () {});
-        restore_exception_handler();
-
         $result = $this->app->registerExceptionHandling();
         $this->assertInstanceOf(Application::class, $result);
 
@@ -119,7 +116,8 @@ class ApplicationTest extends TestCase
 
         $this->assertIsCallable($newHandler);
 
-        set_exception_handler($originalHandler);
+        restore_exception_handler();
+        restore_exception_handler();
     }
     public function test_load_routes_executes_web_routes_file_and_injects_router_instance(): void
     {
