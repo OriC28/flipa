@@ -7,7 +7,6 @@ namespace Core\Middleware;
 use Core\Http\Contracts\MiddlewareInterface;
 use Core\Http\Contracts\RequestInterface;
 use Core\Http\Contracts\ResponseInterface;
-use Core\Http\Exceptions\HttpException;
 use Core\Http\Exceptions\OriginNotAllowedException;
 use Core\Http\Response;
 
