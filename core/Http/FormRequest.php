@@ -37,7 +37,7 @@ class FormRequest extends Request
     public function validate(): void
     {
         if (!$this->authorize()) {
-            throw new HttpException("HTTP Error 403 (Unauthorized),", 403);
+            throw new HttpException("HTTP Error 403 (Unauthorized).", 403);
         }
         $validator = new Validator($this->all(), $this->rules());
         if ($validator->fails()) {
