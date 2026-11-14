@@ -2,6 +2,9 @@
     "name": "vendor/flipa",
     "description": "Lightweight full-stack micro-framework, built from scratch with PHP 8.3.",
     "type": "project",
+    "scripts": {
+        "test:coverage": "/usr/bin/php -d extension=pcov vendor/bin/phpunit --coverage-html reports/coverage"
+    },
     "require": {
         "vlucas/phpdotenv": "^5.7",
         "php": ">=8.3"

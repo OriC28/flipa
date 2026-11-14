@@ -25,5 +25,6 @@ storage/logs/*
 !storage/framework/views/.gitignore
 !storage/logs/.gitignore
 bootstrap/cache/*.php
+/reports
 # PHP CS Fixer configuration
 /.php-cs-fixer.php
