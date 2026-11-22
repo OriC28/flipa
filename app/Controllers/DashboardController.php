@@ -1,22 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Requests\StoreUserRequest;
 
 class DashboardController
 {
-    public function index()
+    public function index(): string
     {
-        session('user', 'ori28');
+        session('user', 'guest');
 
-        return view('index', ['name' => session('user')]);
+        return view('index', ['name' => (string) session('user')]);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request): string
     {
         $request->validate();
 
-        return "Usuario creado con éxito: " . $request->post('name') ?? $request->query('name');
+        $name = $request->post('name') ?? $request->query('name') ?? '';
+
+        return "User created successfully: {$name}";
     }
 }

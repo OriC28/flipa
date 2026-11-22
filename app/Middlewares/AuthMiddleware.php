@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Middlewares;
 
 use Core\Http\Contracts\MiddlewareInterface;
@@ -11,9 +13,8 @@ class AuthMiddleware implements MiddlewareInterface
 {
     public function handle(RequestInterface $request, \Closure $next): ResponseInterface
     {
-
         if (!$request->has('token')) {
-            return new Response(body: "Unauthorized", code: 401);
+            return new Response(code: 401, body: 'Unauthorized');
         }
 
         return $next($request);

@@ -24,6 +24,8 @@ use Core\View\View;
 
 class Application extends Container
 {
+    public const string VERSION = '1.0.0';
+
     protected string $basePath;
     protected string $routePath;
 
