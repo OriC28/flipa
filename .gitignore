@@ -1,5 +1,7 @@
 /vendor/
 /node_modules/
+pnpm-debug.log*
+/public/assets/css/
 .env
 .env.local
 .env.*.local

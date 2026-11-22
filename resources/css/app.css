@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* Tailwind v4 automatically scans the project, but views are declared
+   explicitly so classes are always detected regardless of the CWD. */
+@source "../views";
+
+@theme {
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}

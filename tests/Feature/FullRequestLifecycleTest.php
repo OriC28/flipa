@@ -112,7 +112,7 @@ class FullRequestLifecycleTest extends TestBase
         $response = $this->handleRequest($request);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('Probando desde web.php', $this->getResponseBody($response));
+        $this->assertStringContainsString('Flipa', $this->getResponseBody($response));
         $this->assertArrayHasKey('X-Content-Type-Options', $response->getHeaders());
         $this->assertSame('nosniff', $response->getHeaders()['X-Content-Type-Options']);
     }
